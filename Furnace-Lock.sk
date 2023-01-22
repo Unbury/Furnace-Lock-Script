@@ -10,45 +10,46 @@ on rightclick:
 		set {x} to block's x position
 		set {y} to block's y position
 		set {z} to block's z position
-		if {furnace.pos.%{x}%.%{y}%.%{z}%} is player:
-			if {furnacelock.bypass.%player%} is not 1:
-				send "&f&l[&2FurnaceLock&f&l]&a You own this chest!"
-			if {furnacelock.bypass.%player%} is 1:
-				send "&f&l[&2FurnaceLock&f&l]&a You own this chest!"
+		if {furnace.pos.%{x}%.%{y}%.%{z}%} is "%player%":
+			send "&f&l[&2FurnaceLock&f&l]&a You own this furnace!"
 		else if {furnace.pos.%{x}%.%{y}%.%{z}%} is not set:
-			send "&f&l[&eFurnaceLock&f&l]&6 This chest is not protected. Beware."
+			send "&f&l[&eFurnaceLock&f&l]&6 This furnace is not protected. Beware."
 		else if {furnace.pos.%{x}%.%{y}%.%{z}%} is "n/a":
-			send "&f&l[&eFurnaceLock&f&l]&6 This chest is not protected. Beware."
+			send "&f&l[&eFurnaceLock&f&l]&6 This furnace is not protected. Beware."
 		else:
-			send "&f&l[&eFurnaceLock&f&l]&c %{chest.pos.%{x}%.%{y}%.%{z}%}%&c owns this chest!" to player
-			execute console command "execute at %player% run playsound minecraft:block.chest.locked ambient @p ~ ~ ~ 10000000000 1"
-			cancel event
+			if {furnacelock.bypass.%player%} is not 1:
+				send "&f&l[&eFurnaceLock&f&l]&c %{furnace.pos.%{x}%.%{y}%.%{z}%}%&c owns this furnace!" to player
+				play sound "minecraft:block.chest.locked" to player
+				cancel event
+			if {furnacelock.bypass.%player%} is 1:
+				send "&f&l[&eFurnaceLock&f&l]&c You are bypassing &d%{furnace.pos.%{x}%.%{y}%.%{z}%}%&c's furnace protection!" to player
  
 on place of furnace:
 	set {x} to block's x position
 	set {y} to block's y position
 	set {z} to block's z position
-	set {furnace.pos.%{x}%.%{y}%.%{z}%} to player
+	set {furnace.pos.%{x}%.%{y}%.%{z}%} to "%player%"
 	send "&f&l[&2FurnaceLock&f&l]&a This container is now locked!" to player
  
 on break of furnace:
 	set {x} to block's x position
 	set {y} to block's y position
 	set {z} to block's z position
-	if {furnace.pos.%{x}%.%{y}%.%{z}%} is player:
+	if {furnace.pos.%{x}%.%{y}%.%{z}%} is "%player%":
 		send "&f&l[&4FurnaceLock&f&l]&c You broke your locked container!" to player
-		set {furnace.pos.%{x}%.%{y}%.%{z}%} to "n/a"
+		delete {furnace.pos.%{x}%.%{y}%.%{z}%}
 	else if {furnace.pos.%{x}%.%{y}%.%{z}%} is not set:
-		send "&f&l[&eFurnaceLock&f&l]&6 You broke a loot chest. This chest was unclaimed."
+		send "&f&l[&eFurnaceLock&f&l]&6 You broke an unclaimed furnace."
 	else if {furnace.pos.%{x}%.%{y}%.%{z}%} is "n/a":
-		send "&f&l[&eFurnaceLock&f&l]&6 You broke a loot chest. This chest was unclaimed."
+		send "&f&l[&eFurnaceLock&f&l]&6 You broke an unclaimed furnace."
+		delete {furnace.pos.%{x}%.%{y}%.%{z}%}
 	else:
 		if {furnacelock.bypass.%player%} is not 1:
-			send "&f&l[&eFurnaceLock&f&l]&c %{chest.pos.%{x}%.%{y}%.%{z}%}%&c owns this chest!" to player
-			execute console command "execute at %player% run playsound minecraft:block.chest.locked ambient @p ~ ~ ~ 10000000000 1"
+			send "&f&l[&eFurnaceLock&f&l]&c %{furnace.pos.%{x}%.%{y}%.%{z}%}%&c owns this furnace!" to player
+			play sound "minecraft:block.chest.locked" to player
 			cancel event
 		if {furnacelock.bypass.%player%} is 1:
-			send "&f&l[&eFurnaceLock&f&l]&c You are bypassing %{chest.pos.%{x}%.%{y}%.%{z}%}%&c's chest protection!" to player
+			send "&f&l[&eFurnaceLock&f&l]&c You are bypassing &d%{furnace.pos.%{x}%.%{y}%.%{z}%}%&c's furnace protection!" to player
  
 command /furnacelock [<text>] [<player>] [<text>]:
 	aliases: flock
@@ -58,32 +59,37 @@ command /furnacelock [<text>] [<player>] [<text>]:
 			if arg-1 is not set:
 				send "&f=+=&7===== &a&lFurnacelock Systems &7=====&f=+="
 				send "&aAuthor &f&l> &2Unbury"
-				send "&aVersion &f&l> &21.0"
+				send "&aVersion &f&l> &21.1"
 				send "&aBypass Command &f&l> &2/furnacelock <bypass> [username] <true/false>"
 			if arg-1 is "bypass":
 				if arg-2 is not set:
-					send "&f&l[&2FurnaceLock&f&l]&a /smartlock <bypass> [username] <true/false>"
+					send "&f&l[&2FurnaceLock&f&l]&a /furnacelock <bypass> [username] <true/false>"
 				else:
 					if arg-3 is not "true" or "false":
 						send "&f&l[&2FurnaceLock&f&l]&a /smartlock <bypass> [username] <true/false>"
 					if arg-3 is "true":
 						send "&f&l[&2FurnaceLock&f&l]&a %arg-2%&a is now bypassing chest locks!"
-						set {furnacelock.bypass.%player%} to 1
+						set {furnacelock.bypass.%arg-2%} to 1
 					if arg-3 is "false":
 						send "&f&l[&2FurnaceLock&f&l]&a %arg-2%&a is no longer bypassing chest locks!"
-						set {furnacelock.bypass.%player%} to 0
+						set {furnacelock.bypass.%arg-2%} to 0
 			if arg-1 is "unlock":
 				if distance between player's target block and player <= 10:
+					if player's target block is not furnace:
+						send "&f&l[&eFurnaceLock&f&l]&c You have to be &dlooking &cat a furnace."
 					if player's target block is furnace:
 						set {x} to block's x position
 						set {y} to block's y position
 						set {z} to block's z position
-						if {chest.pos.%{x}%.%{y}%.%{z}%} is player:
-							set {furnace.looking.pos.%player%} to location of player's target block
-							send "&aThe furnace you are &dlooking &aat has been unlocked!"
-						else if {chest.pos.%{x}%.%{y}%.%{z}%} is "not set":
+						if {furnace.pos.%{x}%.%{y}%.%{z}%} is "%player%":
+							send "&f&l&2FurnaceLock&f&l]&a The furnace you are &dlooking &aat has been unlocked!"
+						else if {furnace.pos.%{x}%.%{y}%.%{z}%} is "not set":
 							send "&f&l[&eFurnaceLock&f&l]&6 This furnace is already unprotected."
-						else if {chest.pos.%{x}%.%{y}%.%{z}%} is "n/a":
+						else if {furnace.pos.%{x}%.%{y}%.%{z}%} is "n/a":
 							send "&f&l[&eFurnaceLock&f&l]&6 This furnace is already unprotected."
 						else:
-							send "&f&l[&eFurnaceLock&f&l]&c This is {chest.pos.%{x}%.%{y}%.%{z}%}'s furnace."
+							if {furnacelock.bypass.%player%} is 1:
+								send "&f&l[&eFurnaceLock&f&l]&6You have successfully bypassed &d%{furnace.pos.%{x}%.%{y}%.%{z}%}%&6's furnace lock!"
+								send "&f&l[&2FurnaceLock&f&l]&a The furnace you are looking at has been &dunlocked&a!"
+							if {furnacelock.bypass.%player%} is not 1:
+								send "&f&l[&eFurnaceLock&f&l]&c This is &d%{furnace.pos.%{x}%.%{y}%.%{z}%}%&c's furnace."
