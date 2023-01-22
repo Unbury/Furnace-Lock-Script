@@ -52,14 +52,14 @@ on break of furnace:
  
 command /furnacelock [<text>] [<player>] [<text>]:
 	aliases: flock
-	permission: smartlock.admin
+	permission: furnacelock.admin
 	trigger:
-		if player has permission "smartlock.admin":
+		if player has permission "furnacelock.admin":
 			if arg-1 is not set:
-				send "&f=+=&7===== &a&lSmartlock Systems &7=====&f=+="
-				send "&aAuthor &f&l> &2MeroniMC"
-				send "&aVersion &f&l> &2BETA 1.2"
-				send "&aBypass Command &f&l> &2/smartlock <bypass> [username] <true/false>"
+				send "&f=+=&7===== &a&lFurnacelock Systems &7=====&f=+="
+				send "&aAuthor &f&l> &2Unbury"
+				send "&aVersion &f&l> &21.0"
+				send "&aBypass Command &f&l> &2/furnacelock <bypass> [username] <true/false>"
 			if arg-1 is "bypass":
 				if arg-2 is not set:
 					send "&f&l[&2FurnaceLock&f&l]&a /smartlock <bypass> [username] <true/false>"
